@@ -122,8 +122,8 @@ class MineSweeper(object):
 
         # if there is a flag or square is already clicked, do nothing
         if self.flags[i, j] or self.clicked[i, j]:
-            self.see_mat()
-            return see_mat,-1, self.game_over
+            self.A_see_mat()
+            return self.see_mat,-1, self.game_over
 
         # hit a mine: game over
         if self.mines[i, j]:
@@ -131,8 +131,8 @@ class MineSweeper(object):
             self._reveal_unmarked_mines()
             self._draw_red_X(i, j)
             self._cross_out_wrong_flags()
-            self.see_mat()
-            return see_mat, -10000, self.game_over
+            self.A_see_mat()
+            return self.see_mat, -10000, self.game_over
 
         # square with no surrounding mines: clear out all adjacent squares
         elif self.counts[i, j] == 0:
@@ -140,8 +140,8 @@ class MineSweeper(object):
             for ii in range(max(0, i - 1), min(self.width, i + 2)):
                 for jj in range(max(0, j - 1), min(self.height, j + 2)):
                     self._click_square(ii, jj)
-            self.see_mat()
-            return see_mat,1, self.game_over
+            self.A_see_mat()
+            return self.see_mat,1, self.game_over
 
         # hit an empty square: reveal the number
         else:
@@ -150,14 +150,14 @@ class MineSweeper(object):
                          color=self.count_colors[self.counts[i, j]],
                          ha='center', va='center', fontsize=18,
                          fontweight='bold')
-            self.see_mat()
-            return see_mat, 1, self.game_over
+            self.A_see_mat()
+            return self.see_mat, 1, self.game_over
 
         # if all remaining squares are mines, mark them and end game
         if self.mines.sum() == (~self.clicked).sum():
             self.game_over = True
             self._mark_remaining_mines()
-            self.see_mat()
+            self.A_see_mat()
             return self.see_mat, 10000, self.game_over
 
     def _button_press(self, event):
@@ -178,9 +178,9 @@ class MineSweeper(object):
                                                 min(self.width, i + 2)),
                                           range(max(0, j - 1),
                                                 min(self.height, j + 2))):
-                        self._click_square(ii, jj)
+                        self.step(ii, jj)
             else:
-                self._click_square(i, j)
+                self.step(i, j)
 
         # right mouse button: mark/unmark flag
         elif (event.button == 3) and (not self.clicked[i, j]):
@@ -188,7 +188,7 @@ class MineSweeper(object):
 
         self.fig.canvas.draw()
     # Métodos propios LOS PROPIOS SIUUUUUUUUUUUU
-    def see_mat(self):
+    def A_see_mat(self):
         s_mat=[]
         for fila in range(self.height):
             f=[]
@@ -202,11 +202,11 @@ class MineSweeper(object):
         
     def reset(self):
         # Reinicia el tablero
-        self.fig = plt.figure(figsize=((width + 2) / 3., (height + 2) / 3.))
+        self.fig = plt.figure(figsize=((self.width + 2) / 3., (self.height + 2) / 3.))
         self.ax = self.fig.add_axes((0.05, 0.05, 0.9, 0.9),
                                     aspect='equal', frameon=False,
-                                    xlim=(-0.05, width + 0.05),
-                                    ylim=(-0.05, height + 0.05))
+                                    xlim=(-0.05, self.width + 0.05),
+                                    ylim=(-0.05, self.height + 0.05))
         for axis in (self.ax.xaxis, self.ax.yaxis):
             axis.set_major_formatter(plt.NullFormatter())
             axis.set_major_locator(plt.NullLocator())
@@ -217,8 +217,8 @@ class MineSweeper(object):
                                                  orientation=np.pi / 4,
                                                  ec=self.edge_color,
                                                  fc=self.covered_color)
-                                  for j in range(height)]
-                                 for i in range(width)])
+                                  for j in range(self.height)]
+                                 for i in range(self.width)])
         [self.ax.add_patch(sq) for sq in self.squares.flat]
 
         self.mines = None
@@ -228,6 +228,43 @@ class MineSweeper(object):
         self.game_over = False
         self.see_mat = None
         self.frontera = []
-        self.see_mat()
-        return see_mat
+        self.A_see_mat()
+        return self.see_mat
+    
+    def _click_square(self, i, j):
+        # if this is the first click, then set up the mines
+        if self.mines is None:
+            self._setup_mines(i, j)
+
+        # if there is a flag or square is already clicked, do nothing
+        if self.flags[i, j] or self.clicked[i, j]:
+            return
+        self.clicked[i, j] = True
+
+        # hit a mine: game over
+        if self.mines[i, j]:
+            self.game_over = True
+            self._reveal_unmarked_mines()
+            self._draw_red_X(i, j)
+            self._cross_out_wrong_flags()
+
+        # square with no surrounding mines: clear out all adjacent squares
+        elif self.counts[i, j] == 0:
+            self.squares[i, j].set_facecolor(self.uncovered_color)
+            for ii in range(max(0, i - 1), min(self.width, i + 2)):
+                for jj in range(max(0, j - 1), min(self.height, j + 2)):
+                    self._click_square(ii, jj)
+
+        # hit an empty square: reveal the number
+        else:
+            self.squares[i, j].set_facecolor(self.uncovered_color)
+            self.ax.text(i + 0.5, j + 0.5, str(self.counts[i, j]),
+                         color=self.count_colors[self.counts[i, j]],
+                         ha='center', va='center', fontsize=18,
+                         fontweight='bold')
+
+        # if all remaining squares are mines, mark them and end game
+        if self.mines.sum() == (~self.clicked).sum():
+            self.game_over = True
+            self._mark_remaining_mines()
         

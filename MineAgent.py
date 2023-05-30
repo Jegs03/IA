@@ -58,8 +58,9 @@ class MineSweeper_Agent(Agent):
     def __init__(self):
         #Tablero es el tablero de MineSweeper
         super().__init__()
-        self.actions= [(0,0)]
         self.frontera = []
+        self.choices =[]
+        self.flags = []
         
         
     def calc_frontera(self):
@@ -72,5 +73,10 @@ class MineSweeper_Agent(Agent):
                 self.frontera.append((i,j,val))
 
     def program(self):
+        print(self.actions)
         # Creamos un plan con una acción aleatoria
-        self.plan.append(random.choice(self.choices))
+        coords = set(list(product(range(8), repeat = 2)))
+        if len(self.actions) == 0:
+            self.plan.append((0,0))
+        else:
+            self.plan.append(random.choice(list(coords.difference(self.actions))))
