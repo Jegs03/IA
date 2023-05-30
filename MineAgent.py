@@ -80,3 +80,17 @@ class MineSweeper_Agent(Agent):
             self.plan.append((0,0))
         else:
             self.plan.append(random.choice(list(coords.difference(self.actions))))
+            
+    def regla1(j,i,tablero):
+    k=tablero[i,j]
+    n=0
+    tapadas=[]
+    for x in range(-1,2):
+        for y in range(-1,2):
+            if i+x<0 or j+y<0:
+                continue
+            print(f'val={val}',f'x={j+x}',f'y={i+y}')
+            if val==-1:
+                n+=1
+                tapadas.append((j+x,i+y))
+
