@@ -113,3 +113,43 @@ def regla2(j,i,tablero,flag):
                 flageadas.append((j+x,i+y))
     if n==k:
         return flageadas
+def regla3(j,i,t):
+    res=-1
+    ls=[]
+    k=t[i,j]
+    lineas=np.array([[t[i,j-1],t[i,j],t[i,j+1]],[t[i-1,j],t[i,j],t[i+1,j]]])
+    print(lineas)
+    #print(lineas)
+    if k==2:
+        for x in range(2):
+            g=np.array([1,2,1])
+            if lineas[x].all()==g.all():
+                res=x
+    if res==0:
+        ls.append((i,j-1))
+        ls.append((i,j+1))
+    if res==1:
+        ls.append((i-1,j))
+        ls.append((i+1,j))
+    return ls
+
+
+def regla4(j,i,t):
+    res=-1
+    ls=[]
+    k=t[i,j]
+    lineas=np.array([[t[i,j-1],t[i,j],t[i,j+1]],[t[i-1,j],t[i,j],t[i+1,j]]])
+    print(lineas)
+    #print(lineas)
+    if k==2:
+        for x in range(2):
+            g=np.array([1,2,1])
+            if lineas[x].all()==g.all():
+                res=x
+    if res==0:
+        ls.append((i,j-1))
+        ls.append((i,j+1))
+    if res==1:
+        ls.append((i-1,j))
+        ls.append((i+1,j))
+    return ls
