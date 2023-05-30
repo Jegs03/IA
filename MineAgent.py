@@ -62,7 +62,7 @@ class MineSweeper_Agent(Agent):
         self.choices =[]
         self.flags = []
         
-        
+   
     def calc_frontera(self):
         #Tablero es un np.array
         w,h = self.states[-1].shape
