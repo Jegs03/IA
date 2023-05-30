@@ -96,3 +96,20 @@ def regla1(j,i,tablero):
                 tapadas.append((j+x,i+y))
     if n==k:
         return tapadas
+def regla2(j,i,tablero,flag):
+    k=tablero[i,j]
+    n=0
+    flageadas=[]
+    for x in range(-1,2):
+        for y in range(-1,2):
+            val=(tablero[i+x,j+y])
+            if i+x<0 or j+y<0:
+                continue
+            print(f'val={val}',f'x={j+x}',f'y={i+y}')
+
+            if (j+x,i+y) in flag:
+                n+=1
+            else:    
+                flageadas.append((j+x,i+y))
+    if n==k:
+        return flageadas
