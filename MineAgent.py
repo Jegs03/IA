@@ -61,7 +61,26 @@ class MineSweeper_Agent(Agent):
         self.frontera = []
         self.choices =[]
         self.flags = []
-        
+        self.tablero=None
+        self.destapadas=[]
+        self.reglas=[regla1,regla2,regla3,regla4]
+    def make_decision(self):
+        '''
+        Agent makes a decision according to its model.
+        '''
+        # Chequeamos si ya el agente no tiene un plan (lista de acciones)
+        if len(self.plan) == 0:
+            # Usamos el programa para crear un plan
+            self.program()
+        try:
+            # La acción a realizar es la primera del plan
+            action = self.plan.pop(0)
+        except:
+            # ¡No hay plan!
+            state = self.states[-1]
+            raise Exception(f'¡Plan vacío! Revisar reglas en estado {state}')
+        self.turn += 1
+        return action    
    
     def calc_frontera(self):
         #Tablero es un np.array
@@ -74,12 +93,18 @@ class MineSweeper_Agent(Agent):
 
     def program(self):
         print(self.actions)
-        # Creamos un plan con una acción aleatoria
-        coords = set(list(product(range(8), repeat = 2)))
         if len(self.actions) == 0:
             self.plan.append((0,0))
         else:
-            self.plan.append(random.choice(list(coords.difference(self.actions))))
+            for x in self.frontera:
+                for r in self.reglas:
+                    if r == regla2:
+                        self.flags.append(r(x[0],x[1],self.tablero,self.flags))
+                    else:
+                        self.plan.append(r(x[0],x[1],self.tablero))
+                        
+    
+            
             
 def regla1(j,i,tablero):
     k=tablero[i,j]
@@ -153,3 +178,4 @@ def regla4(j,i,t):
         ls.append((i-1,j))
         ls.append((i+1,j))
     return ls
+
