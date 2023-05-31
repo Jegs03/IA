@@ -46,7 +46,7 @@ class Episode :
             #self.agent.tablero=self.environment.see_mat
             action = self.agent.make_decision()
         except Exception as e:
-            #print(e)
+            print(e)
             #self.environment.pintar_todo()
             #print('por visitar:', self.agent.por_visitar)
             #print('seguras:', self.agent.seguras)

@@ -60,6 +60,7 @@ class MineSweeper_Agent(Agent):
     def __init__(self):
         #Tablero es el tablero de MineSweeper
         super().__init__()
+        self.start=False
         self.frontera = []
         self.choices =[]
         self.flags = []
@@ -77,63 +78,87 @@ class MineSweeper_Agent(Agent):
                 self.frontera.append((i,j,val))
 
     def program(self):
-        if len(self.actions) == 0:
-            self.plan.append((0,0))
+        print(self.actions)
+        if len(self.actions) == 0 and not self.start:
+            self.plan.append((1,1))
+            self.start=True
         else:
+            a=regla0(self.states[-1])
+            print(a)
+            self.plan.extend(a[0])
+            self.flags.extend(a[1])
+            self.plan = list(set(self.plan))
+            self.flags = list(set(self.flags))
             if len(self.plan) == 0:
                 self.calc_frontera()
                 for x in self.frontera:
+                    a=regla2(x[0],x[1],self.states[-1],self.flags)
+                    self.plan.extend(a[0])
+                    self.flags.extend(a[1])
+                    self.plan = list(set(self.plan))
+                    self.flags = list(set(self.flags))
                     for r in self.reglas:
                         a = r(x[0],x[1],self.states[-1])
                         if a is not None:
                             if len(a[0]) > 0 or len(a[1])>0:
-                                if r == regla1:
-                                    self.flags.extend(a)
-                                    self.flags = shuffle(list(set(self.flags))) #Casillas con Bomba
-                                else:
                                     self.plan.extend(a[0])
                                     self.flags.extend(a[1])
-                                    self.plan = shuffle(list(set(self.plan)))
-                                    self.flags = shuffle(list(set(self.flags)))
-                if len(self.plan) ==0: #Se calcula la probabilidad  
-                    for x in self.frontera:
+                                    self.plan = list(set(self.plan))
+                                    self.flags = list(set(self.flags))
+                #if len(self.plan) ==0: #Se calcula la probabilidad  
+                    #for x in self.frontera:
                         #BN_x = create_BN(x,self.states[-1])
-                        pass
-            
+                        #pass
+
+def regla0(tablero):
+    n=0
+    for x in range(-1,2):
+        for y in range(-1,2):
+            k=tablero[x,y]
+            if k==-1:
+                n+=1
+                
+    safe=[]
+    if n==8:
+        safe=[(0,1)]
+    return safe,[]
 def regla1(i,j,tablero):
+    safe=[]
+    flags=[]
     k=tablero[i,j]
     n=0
-    tapadas=[]
     for x in range(-1,2):
         for y in range(-1,2):
             if tablero.shape[0]>i+x>=0 and tablero.shape[1]>j+y>=0:
                 val=(tablero[i+x,j+y])
                 if val==-1:
                     n+=1
-                    tapadas.append((j+x,i+y))
+                    flags.append((j+x,i+y))
     if n==k:
-        return tapadas
+        return safe , flags
     else:
-        return None
-'''    
+        return [],[]
+
 def regla2(i,j,tablero,flag):
     k=tablero[i,j]
     n=0
+    safe=[]
     flageadas=[]
     for x in range(-1,2):
         for y in range(-1,2):
-            if tablero[0].shape>i+x>=0 and tablero.shape[1]j+y>=0:
+            if tablero.shape[0]>i+x>=0 and tablero.shape[1]>j+y>=0:
                 val=(tablero[i+x,j+y])
                 continue
-            if (i+x,j+y) in flag:
-                n+=1
+            if type(flag) ==list:
+                if (i+x,j+y) in flag:
+                    n+=1
             else:    
-                flageadas.append((j+x,i+y))
+                safe.append((j+x,i+y))
     if n==k: #OJO QUE AQUÍ PUEDE (podía*) DEVOLVER NONES
-        return flageadas
+        return safe ,flageadas 
     else:
-        return []
-'''
+        return [],[]
+
 def regla3(i,j,t):
     k=t[i,j]
     if k == 2:

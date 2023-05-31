@@ -140,8 +140,8 @@ class MineSweeper(object):
 
         # if there is a flag or square is already clicked, do nothing
         if self.clicked[i, j]:
-            self.see_mat()
-            return see_mat,-1, self.game_over
+            self.C_see_mat()
+            return self.see_mat,-1, self.game_over
 
         # hit a mine: game over
         if self.mines[i, j]:
