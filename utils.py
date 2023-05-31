@@ -43,17 +43,17 @@ class Episode :
         # Ask agent to make a decision
         try:
             self.environment.C_see_mat()
-            self.agent.tablero=self.environment.see_mat
+            #self.agent.tablero=self.environment.see_mat
             action = self.agent.make_decision()
         except Exception as e:
-            print(e)
+            #print(e)
             #self.environment.pintar_todo()
             #print('por visitar:', self.agent.por_visitar)
             #print('seguras:', self.agent.seguras)
             #print('visitadas:', self.agent.visitadas)
             #print(self.environment.agente, self.agent.loc)
             #print(self.environment.dir_agente, self.agent.direccion)
-            #raise Exception('Oh oh')
+            raise Exception('Oh oh')
             
         self.agent.actions.append(action)
         # Runs the environment and obtains the next_state, reward, done
@@ -66,7 +66,6 @@ class Episode :
             print(f'\tThe state obtained is => {next_state}')
             print(f'\tThe reward obtained is => {reward}')
             print(f'\tEnvironment is finished? => {done}')
-            print(f'\t{self.environment.agente}, {self.environment.dir_agente}')
         self.agent.states.append(next_state)
         self.agent.rewards.append(reward)
         self.agent.dones.append(done)
@@ -147,6 +146,7 @@ class Episode :
                 self.play_round(verbose=0)                
                 clear_output(wait=True)
                 self.environment.render()
+                clear_output(wait=True)
                 sleep(self.sleep_time)
             else:
                 break

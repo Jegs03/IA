@@ -114,21 +114,23 @@ class MineSweeper(object):
         self.counts = convolve2d(self.mines.astype(complex), np.ones((3, 3)),
                                  mode='same').real.astype(int)
     def _click_square(self, i, j):
-        # if this is the first click, then set up the mines
-        if self.mines is None:
-            self._setup_mines(i, j)
-
-        # if there is a flag or square is already clicked, do nothing
-        if self.flags[i, j] or self.clicked[i, j]:
+        if self.clicked[i, j]:
             return
         self.clicked[i, j] = True
+        # square with no surrounding mines: clear out all adjacent squares
+        if self.counts[i, j] == 0:
+            self.squares[i, j].set_facecolor(self.uncovered_color)
+            for ii in range(max(0, i - 1), min(self.width, i + 2)):
+                for jj in range(max(0, j - 1), min(self.height, j + 2)):
+                    self._click_square(ii, jj)
 
-        # hit a mine: game over
-        if self.mines[i, j]:
-            self.game_over = True
-            self._reveal_unmarked_mines()
-            self._draw_red_X(i, j)
-            self._cross_out_wrong_flags()
+        # hit an empty square: reveal the number
+        else:
+            self.squares[i, j].set_facecolor(self.uncovered_color)
+            self.ax.text(i + 0.5, j + 0.5, str(self.counts[i, j]),
+                         color=self.count_colors[self.counts[i, j]],
+                         ha='center', va='center', fontsize=18,
+                         fontweight='bold')
 
     def step(self, action):
         i, j = action
@@ -137,7 +139,7 @@ class MineSweeper(object):
             self._setup_mines(i, j)
 
         # if there is a flag or square is already clicked, do nothing
-        if self.flags[i, j] or self.clicked[i, j]:
+        if self.clicked[i, j]:
             self.see_mat()
             return see_mat,-1, self.game_over
 
