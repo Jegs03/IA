@@ -42,10 +42,18 @@ class Episode :
         '''
         # Ask agent to make a decision
         try:
+            self.environment.C_see_mat()
+            self.agent.tablero=self.environment.see_mat
             action = self.agent.make_decision()
         except Exception as e:
             print(e)
-            raise Exception('Oh oh')
+            #self.environment.pintar_todo()
+            #print('por visitar:', self.agent.por_visitar)
+            #print('seguras:', self.agent.seguras)
+            #print('visitadas:', self.agent.visitadas)
+            #print(self.environment.agente, self.agent.loc)
+            #print(self.environment.dir_agente, self.agent.direccion)
+            #raise Exception('Oh oh')
             
         self.agent.actions.append(action)
         # Runs the environment and obtains the next_state, reward, done
@@ -58,6 +66,7 @@ class Episode :
             print(f'\tThe state obtained is => {next_state}')
             print(f'\tThe reward obtained is => {reward}')
             print(f'\tEnvironment is finished? => {done}')
+            print(f'\t{self.environment.agente}, {self.environment.dir_agente}')
         self.agent.states.append(next_state)
         self.agent.rewards.append(reward)
         self.agent.dones.append(done)
@@ -129,30 +138,18 @@ class Episode :
         self.T = 1
         self.done = False
 
-    def renderize(self, parameters=None):
+    def renderize(self):
         '''
         Plays the specified number of rounds.
         '''
-        if parameters == None:
-            for round in range(self.num_rounds):
-                if not self.done:
-                    self.play_round(verbose=0)                
-                    sleep(self.sleep_time)
-                    clear_output(wait=True)
-                else:
-                    break
-        else:
-            try:
-                for round in range(self.num_rounds):
-                    if not self.done:
-                        self.play_round(verbose=0)                
-                        clear_output(wait=True)
-                        sleep(self.sleep_time)
-                    else:
-                        break
-            except:
-                raise Exception(f'Parámetros de visualización desconocidos {parameters}')
-
+        for round in range(self.num_rounds):
+            if not self.done:
+                self.play_round(verbose=0)                
+                clear_output(wait=True)
+                self.environment.render()
+                sleep(self.sleep_time)
+            else:
+                break
    
     def simulate(self, num_episodes:int=1, file:str=None, verbose:int=0):
         '''
