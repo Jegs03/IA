@@ -133,6 +133,7 @@ class MineSweeper(object):
                          fontweight='bold')
 
     def step(self, action):
+        #print(action)
         i, j = action
         # if this is the first click, then set up the mines
         if self.mines is None:

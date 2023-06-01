@@ -45,6 +45,7 @@ class Episode :
             self.environment.C_see_mat()
             #self.agent.tablero=self.environment.see_mat
             action = self.agent.make_decision()
+            print(action)
         except Exception as e:
             print(e)
             #self.environment.pintar_todo()
@@ -77,6 +78,7 @@ class Episode :
         Plays the specified number of rounds.
         '''
         for round in range(self.num_rounds):
+            print(round)
             if not self.done:
                 if verbose > 2:
                     print('\n' + '-'*10 + f'Round {round}' + '-'*10 + '\n')

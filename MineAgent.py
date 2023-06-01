@@ -1,5 +1,5 @@
 import numpy as np
-from random import shuffle
+import random as rn
 from itertools import product
 import pyAgrum as gum
 import pyAgrum.lib.notebook as gnb
@@ -27,6 +27,8 @@ class Agent :
             self.program()
         try:
             # La acción a realizar es la primera del plan
+            self.plan=list(set(self.plan))
+            print(self.plan)
             action = self.plan.pop(0)
         except:
             # ¡No hay plan!
@@ -61,6 +63,7 @@ class MineSweeper_Agent(Agent):
         #Tablero es el tablero de MineSweeper
         super().__init__()
         self.start=False
+        self.r1=False
         self.frontera = []
         self.choices =[]
         self.flags = []
@@ -78,20 +81,23 @@ class MineSweeper_Agent(Agent):
                 self.frontera.append((i,j,val))
 
     def program(self):
+        self.calc_frontera()
         print(self.actions)
         if len(self.actions) == 0 and not self.start:
             self.plan.append((1,1))
             self.start=True
         else:
-            a=regla0(self.states[-1])
-            print(a)
-            self.plan.extend(a[0])
-            self.flags.extend(a[1])
-            self.plan = list(set(self.plan))
-            self.flags = list(set(self.flags))
-            if len(self.plan) == 0:
-                self.calc_frontera()
+            if not self.r1:
+                a=regla0(self.states[-1])
+                self.r1=True
+                self.plan.extend(a[0])
+                self.flags.extend(a[1])
+                self.plan = list(set(self.plan))
+                self.flags = list(set(self.flags))
+            elif len(self.plan) == 0:
+                print('entro')
                 for x in self.frontera:
+                    print(x)
                     a=regla2(x[0],x[1],self.states[-1],self.flags)
                     self.plan.extend(a[0])
                     self.flags.extend(a[1])
@@ -99,28 +105,32 @@ class MineSweeper_Agent(Agent):
                     self.flags = list(set(self.flags))
                     for r in self.reglas:
                         a = r(x[0],x[1],self.states[-1])
-                        if a is not None:
-                            if len(a[0]) > 0 or len(a[1])>0:
-                                    self.plan.extend(a[0])
-                                    self.flags.extend(a[1])
-                                    self.plan = list(set(self.plan))
-                                    self.flags = list(set(self.flags))
-                #if len(self.plan) ==0: #Se calcula la probabilidad  
-                    #for x in self.frontera:
-                        #BN_x = create_BN(x,self.states[-1])
-                        #pass
+                        if a!=None:
+                            self.plan.extend(a[0])
+                            self.flags.extend(a[1])
+                            self.plan = list(set(self.plan))
+                            self.flags = list(set(self.flags))                        
 
+                if len(self.plan) ==0: #Se calcula la probabilidad
+                    if len(self.frontera)!=0:
+                        cell=rn.choice(self.frontera)
+                        v=False
+                        for x in range(-1,2):
+                            if v:
+                                break
+                            for y in range(-1,2):
+                                if self.states[-1][cell[0]+x,cell[1]+y]==-1:
+                                    if cell[0]+x>=0 and cell[1]+y>=0:
+                                        self.plan.extend([(cell[0]+x,cell[1]+y)])
+                                        v=True
+                                        break
+                    else:
+                        self.plan.extend([(0,0)])
+                        #print(f'plan:{self.plan}')
+                   
+                                
 def regla0(tablero):
-    n=0
-    for x in range(-1,2):
-        for y in range(-1,2):
-            k=tablero[x,y]
-            if k==-1:
-                n+=1
-                
-    safe=[]
-    if n==8:
-        safe=[(0,1)]
+    safe=[(0,1)]
     return safe,[]
 def regla1(i,j,tablero):
     safe=[]
